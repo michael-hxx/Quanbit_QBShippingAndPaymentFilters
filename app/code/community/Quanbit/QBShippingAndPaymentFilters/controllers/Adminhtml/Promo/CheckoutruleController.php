@@ -25,7 +25,7 @@
  */
 
 
-class Quanbit_QBShippingAndPaymentFilters_Promo_CheckoutruleController extends Mage_Adminhtml_Controller_Action
+class Quanbit_QBShippingAndPaymentFilters_Adminhtml_Promo_CheckoutruleController extends Mage_Adminhtml_Controller_Action
 {
     protected function _initRule()
     {
@@ -119,9 +119,9 @@ class Quanbit_QBShippingAndPaymentFilters_Promo_CheckoutruleController extends M
                 $helper = Mage::helper('adminhtml');
                 $data['name'] = $helper->stripTags($data['name']);
                 $data['description'] = $helper->stripTags($data['description']);
-//                foreach ($data['store_labels'] as &$label) {
-//                    $label = $helper->stripTags($label);
-//                }
+                foreach ($data['store_labels'] as &$label) {
+                    $label = $helper->stripTags($label);
+                }
 
                 $data = $this->_filterDates($data, array('from_date', 'to_date'));
                 $id = $this->getRequest()->getParam('rule_id');
@@ -225,9 +225,6 @@ class Quanbit_QBShippingAndPaymentFilters_Promo_CheckoutruleController extends M
 
         if ($model instanceof Mage_Rule_Model_Condition_Abstract) {
             $model->setJsFormObject($this->getRequest()->getParam('form'));
-	    if (!is_array($model->getValueOption())){
-		$model->setValueOption(array());
-            }
             $html = $model->asHtmlRecursive();
         } else {
             $html = '';

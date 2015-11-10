@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Quanbit_QBShippingAndPaymentFilters>
-            <version>0.4</version>
+            <version>0.9.1</version>
         </Quanbit_QBShippingAndPaymentFilters>
     </modules>      
     <global>
@@ -11,7 +11,20 @@
                 <setup>
                     <module>Quanbit_QBShippingAndPaymentFilters</module>
                 </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
             </qbshippingandpaymentfilters_setup>
+            <qbshippingandpaymentfilters_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </qbshippingandpaymentfilters_write>
+            <qbshippingandpaymentfilters_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </qbshippingandpaymentfilters_read>            
         </resources>              
         <models>
             <shipping>
@@ -39,11 +52,6 @@
                     </label>
                 </entities>
             </checkoutrule_mysql4>
-            <salesrule>
-                <rewrite>
-                    <rule_condition_address>Quanbit_QBShippingAndPaymentFilters_Model_SalesRule_Rule_Condition_Address</rule_condition_address>
-                </rewrite>
-            </salesrule>
         </models>
         <helpers>
             <checkoutrule>
@@ -60,7 +68,7 @@
             <observers>
               <quanbit_qbshippingandpaymentfilters_filterpaymentmethods>
                 <type>singleton</type>
-                <class>checkoutrule/observer</class>
+                <class>checkoutrule/observer_filter</class>
                 <method>paymentMethods</method>
               </quanbit_qbshippingandpaymentfilters_filterpaymentmethods>
             </observers>
@@ -69,7 +77,7 @@
             <observers>
               <quanbit_qbshippingandpaymentfilters_filterpaymentmethods>
                 <type>singleton</type>
-                <class>checkoutrule/observer</class>
+                <class>checkoutrule/observer_filter</class>
                 <method>shippingMethods</method>
               </quanbit_qbshippingandpaymentfilters_filterpaymentmethods>
             </observers>
@@ -78,16 +86,42 @@
     </global>
     <admin>
         <routers>
-            <checkoutrule>
-                <use>admin</use>
+            <adminhtml>
                 <args>
-                    <module>Quanbit_QBShippingAndPaymentFilters</module>
-                    <frontName>checkoutrule</frontName>
+                    <modules>
+                        <checkoutrule before="Mage_Adminhtml">Quanbit_QBShippingAndPaymentFilters_Adminhtml</checkoutrule>
+                    </modules>
                 </args>
-            </checkoutrule>
+            </adminhtml>
         </routers>
     </admin>
     <adminhtml>
+        <menu>
+            <promo>
+                <children>
+                    <checkoutrule module="checkoutrule">
+                        <title>Checkout Rules</title>
+                        <sort_order>75</sort_order>               
+                        <action>adminhtml/promo_checkoutrule/index</action>
+                    </checkoutrule>
+                </children>
+            </promo>
+        </menu>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <Quanbit_QBShippingAndPaymentFilters>
+                            <title>Quanbit_QBShippingAndPaymentFilters Module</title>
+                            <sort_order>10</sort_order>
+                        </Quanbit_QBShippingAndPaymentFilters>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
         <layout>
             <updates>
                 <checkoutrule>

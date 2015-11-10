@@ -11,10 +11,9 @@ How to use: After installing (we recommend using Magento Connect's installer), a
 
 There, you can add any rules you need. These will be applied on the cart (either when creating an order from the admin interface or from the frontend). 
 
-Changelog: 0.8.4
-In this release:
-- Fixed Deleting of the rules
-- Fixed problem that sometimes provoked a blank page on cart view.  
+***
+THIS IS A FORK - i added the current version 0.9.2 of this extension from magento connect and fixed some issues with SUPEE-6788.
+***
 
 Known Issues:
 - Enabling shipping methods is not working. You'll need to use it the other way around (enabling in the config the shipping method, and then disabling it on a rule).

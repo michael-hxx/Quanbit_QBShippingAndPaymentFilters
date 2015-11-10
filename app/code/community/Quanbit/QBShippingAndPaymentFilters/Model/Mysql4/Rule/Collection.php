@@ -32,21 +32,13 @@ class Quanbit_QBShippingAndPaymentFilters_Model_Mysql4_Rule_Collection extends M
         $this->_init('checkoutrule/rule');
         $this->_map['fields']['rule_id'] = 'main_table.rule_id';
     }
-
-    public function getRules($websiteId, $methodId, $action, $methodType, $customerGroupId, $now = null){
-        if (is_null($now)) {
-            $now = Mage::getModel('core/date')->date('Y-m-d');
+    public function getRowsFor($websiteId, $method_id, $action, $method_type){
+        $this->getSelect()->where('is_active=1');
+        $this->getSelect()->where('simple_action=?', $action. "_".$method_type. "_method");
+        if ($websiteId){
+            $this->getSelect()->where('find_in_set(?, website_ids)', (int)$websiteId);
         }
-
-        $this->addFieldToFilter('is_active', 1);
-        $this->addFieldToFilter('simple_action', $action.'_'.$methodType.'_method');
-        $this->getSelect()->where('FIND_IN_SET(?, website_ids)', (int) $websiteId);
-        $this->getSelect()->where('FIND_IN_SET(?, customer_group_ids)', (int) $customerGroupId);
-        $this->getSelect()->where($methodType.'_methods_ids like ?', "%".$methodId."%");
-        $this->getSelect()->where('from_date is null or from_date<=?', $now);
-        $this->getSelect()->where('to_date is null or to_date>=?', $now);
-        $this->setOrder('sort_order');
-
+        $this->getSelect()->where($method_type.'_methods_ids like ?', "%".$method_id."%");
         return $this;
     }
 

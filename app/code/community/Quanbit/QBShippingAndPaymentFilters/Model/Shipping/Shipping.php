@@ -10,19 +10,7 @@
  *
  * @author alex
  */
-class Quanbit_QBShippingAndPaymentFilters_Model_Shipping_Shipping
-    extends Mage_Shipping_Model_Shipping {
-
-
-    /**
-     * Get carrier by its code
-     *
-     * @param string   $carrierCode
-     * @param          $address
-     * @param null|int $storeId
-     *
-     * @return bool|Mage_Core_Model_Abstract
-     */
+class Quanbit_QBShippingAndPaymentFilters_Model_Shipping_Shipping extends Mage_Shipping_Model_Shipping {
     public function getCarrierByCodeAndAddress($carrierCode, $address, $storeId = null)
     {
         $active = Mage::getStoreConfigFlag('carriers/'.$carrierCode.'/active', $storeId);
@@ -33,20 +21,21 @@ class Quanbit_QBShippingAndPaymentFilters_Model_Shipping_Shipping
             'carrier_code' => $carrierCode,
             'quote'           => $address->getQuote(),
         ));
-
+        
         if (!$checkResult->isAvailable) return false;
+        Mage::app()->getStore($storeId)->setConfig('carriers/'.$carrierCode.'/active', true);
 
-        if (!Mage::getStoreConfigFlag('carriers/'.$carrierCode.'/'.$this->_availabilityConfigField, $storeId)) {
-            return false;
-        }
         $className = Mage::getStoreConfig('carriers/'.$carrierCode.'/model', $storeId);
         if (!$className) {
             return false;
-        }
+            #Mage::throwException('Invalid carrier: '.$carrierCode);
+        }       
+        
         $obj = Mage::getModel($className);
         if ($storeId) {
             $obj->setStore($storeId);
         }
+        
         return $obj;
     }
 
@@ -61,48 +50,12 @@ class Quanbit_QBShippingAndPaymentFilters_Model_Shipping_Shipping
             $result = $carrier->proccessAdditionalValidation($request);
         }
         /*
-         * Result will be false if the admin set not to show the shipping module
-         * if the delivery country is not within specific countries
-         */
+        * Result will be false if the admin set not to show the shipping module
+        * if the devliery country is not within specific countries
+        */
         if (false !== $result){
             if (!$result instanceof Mage_Shipping_Model_Rate_Result_Error) {
-                if ($carrier->getConfigData('shipment_requesttype')) {
-                    $packages = $this->composePackagesForCarrier($carrier, $request);
-                    if (!empty($packages)) {
-                        $sumResults = array();
-                        foreach ($packages as $weight => $packageCount) {
-                            $request->setPackageWeight($weight);
-                            $result = $carrier->collectRates($request);
-                            if (!$result) {
-                                return $this;
-                            } else {
-                                $result->updateRatePrice($packageCount);
-                            }
-                            $sumResults[] = $result;
-                        }
-                        if (!empty($sumResults) && count($sumResults) > 1) {
-                            $result = array();
-                            foreach ($sumResults as $res) {
-                                if (empty($result)) {
-                                    $result = $res;
-                                    continue;
-                                }
-                                foreach ($res->getAllRates() as $method) {
-                                    foreach ($result->getAllRates() as $resultMethod) {
-                                        if ($method->getMethod() == $resultMethod->getMethod()) {
-                                            $resultMethod->setPrice($method->getPrice() + $resultMethod->getPrice());
-                                            continue;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        $result = $carrier->collectRates($request);
-                    }
-                } else {
-                    $result = $carrier->collectRates($request);
-                }
+                $result = $carrier->collectRates($request);
                 if (!$result) {
                     return $this;
                 }
@@ -118,7 +71,6 @@ class Quanbit_QBShippingAndPaymentFilters_Model_Shipping_Shipping
         }
         return $this;
     }
-
     
     /**
      * Retrieve all methods for supplied shipping data
